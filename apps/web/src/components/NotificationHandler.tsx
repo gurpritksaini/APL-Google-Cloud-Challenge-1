@@ -13,7 +13,7 @@ export function NotificationHandler() {
     if (!lastMessage) return;
 
     const { notification, data } = lastMessage;
-    const severity = (data?.['severity'] as string | undefined) ?? 'info';
+    const severity = data?.['severity'] ?? 'info';
 
     showToast({
       type: severity === 'critical' ? 'critical' : severity === 'warning' ? 'warning' : 'info',

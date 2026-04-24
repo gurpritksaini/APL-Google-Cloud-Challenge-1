@@ -1,6 +1,6 @@
 // Node.js v22+ has experimental localStorage that exists but is broken when
 // --localstorage-file is not provided a valid path. Patch it for safe SSR.
-export async function register() {
+export function register() {
   if (typeof localStorage !== 'undefined' && typeof localStorage.getItem !== 'function') {
     const store = new Map<string, string>();
     Object.defineProperty(global, 'localStorage', {

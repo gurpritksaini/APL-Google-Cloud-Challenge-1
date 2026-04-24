@@ -54,7 +54,7 @@ export function useCollection<T extends DocumentData>(
           setError(null);
         },
         (err) => {
-          setError(err as Error);
+          setError(err instanceof Error ? err : new Error(String(err)));
           setLoading(false);
         },
       );
@@ -64,7 +64,6 @@ export function useCollection<T extends DocumentData>(
       cancelled = true;
       unsubscribe?.();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collectionPath, constraintKey]);
 
   return { data, loading, error };
@@ -98,7 +97,7 @@ export function useDocument<T extends DocumentData>(
           setLoading(false);
         },
         (err) => {
-          setError(err as Error);
+          setError(err instanceof Error ? err : new Error(String(err)));
           setLoading(false);
         },
       );

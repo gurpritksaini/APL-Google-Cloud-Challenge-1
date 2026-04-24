@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Clock, ChevronRight, SortAsc } from 'lucide-react';
+import { Clock, SortAsc } from 'lucide-react';
 import { clsx } from 'clsx';
 import { orderBy } from 'firebase/firestore';
 import { useCollection } from '@/hooks/useFirestore';

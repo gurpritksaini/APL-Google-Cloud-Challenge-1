@@ -3,12 +3,14 @@ import type { NextConfig } from 'next';
 const isDev = process.env.NODE_ENV === 'development';
 
 const nextConfig: NextConfig = {
+  output: 'export',
   reactStrictMode: true,
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
   images: {
     formats: ['image/avif', 'image/webp'],
+    unoptimized: true,
   },
 };
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Users, Clock, AlertTriangle, TrendingUp, Wifi, WifiOff } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -57,7 +57,15 @@ function StatCard({
   );
 }
 
-export default function HomePage() {
+export default function Page() {
+  return (
+    <Suspense>
+      <HomePage />
+    </Suspense>
+  );
+}
+
+function HomePage() {
   const searchParams = useSearchParams();
   const gateId = searchParams.get('gate');
   const zoneId = searchParams.get('zone');
