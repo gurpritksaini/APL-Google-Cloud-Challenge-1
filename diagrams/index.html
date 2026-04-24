@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Venue Platform — Diagrams</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #05091a;
+      color: #e2e8f8;
+      font-family: 'Inter', -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 30% 20%, rgba(66,133,244,0.1) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 50% at 75% 80%, rgba(52,168,83,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 80% 10%, rgba(251,188,4,0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* Dot grid */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    nav {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 60px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .gcp-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #4285F4 0%, #34A853 50%, #FBBC04 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .nav-brand {
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .nav-badge {
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(66,133,244,0.12);
+      border: 1px solid rgba(66,133,244,0.25);
+      font-size: 10px;
+      font-weight: 600;
+      color: #7eb8ff;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    main {
+      flex: 1;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+    }
+
+    /* Hero section */
+    .hero {
+      text-align: center;
+      max-width: 720px;
+      margin-bottom: 64px;
+      animation: fadeUp 0.6s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 20px;
+      background: rgba(66,133,244,0.1);
+      border: 1px solid rgba(66,133,244,0.22);
+      font-size: 11px;
+      font-weight: 600;
+      color: #7eb8ff;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .live-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #34A853;
+      box-shadow: 0 0 8px #34A853;
+      animation: pulse 2.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity: 1; box-shadow: 0 0 8px #34A853; }
+      50%      { opacity: 0.4; box-shadow: 0 0 4px #34A853; }
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(90deg, #4285F4, #34A853, #FBBC04);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 17px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+    /* Cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      width: 100%;
+      max-width: 960px;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 20px;
+      padding: 36px;
+      text-decoration: none;
+      color: inherit;
+      overflow: hidden;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .card-arch::before { background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(66,133,244,0.12), transparent 70%); }
+    .card-flow::before { background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(52,168,83,0.12), transparent 70%); }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.18);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .card:hover::before { opacity: 1; }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .card-icon-wrap {
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+
+    .card-arch .card-icon-wrap { background: linear-gradient(135deg, rgba(66,133,244,0.25), rgba(66,133,244,0.08)); border: 1px solid rgba(66,133,244,0.3); }
+    .card-flow .card-icon-wrap { background: linear-gradient(135deg, rgba(52,168,83,0.25), rgba(52,168,83,0.08)); border: 1px solid rgba(52,168,83,0.3); }
+
+    .card-arrow {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .card:hover .card-arrow {
+      background: rgba(255,255,255,0.1);
+      transform: translate(2px, -2px);
+    }
+
+    .card-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .card-arch .card-label { color: #4285F4; }
+    .card-flow .card-label { color: #34A853; }
+
+    .card h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.65;
+      flex: 1;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .tag {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* Stats strip */
+    .stats {
+      display: flex;
+      gap: 0;
+      width: 100%;
+      max-width: 960px;
+      margin-top: 32px;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      overflow: hidden;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+
+    .stat {
+      flex: 1;
+      padding: 22px 28px;
+      border-right: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.025);
+    }
+
+    .stat:last-child { border-right: none; }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.38);
+      font-weight: 500;
+    }
+
+    .stat-value.blue  { color: #4285F4; }
+    .stat-value.green { color: #34A853; }
+    .stat-value.gold  { color: #FBBC04; }
+    .stat-value.pink  { color: #EA4335; }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 24px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      font-size: 11px;
+      color: rgba(255,255,255,0.2);
+    }
+
+    footer a { color: rgba(255,255,255,0.35); text-decoration: none; }
+    footer a:hover { color: rgba(255,255,255,0.6); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="gcp-icon">☁️</div>
+    <span class="nav-brand">Smart Venue Platform</span>
+  </div>
+  <div class="nav-badge">APL Google Cloud Challenge</div>
+</nav>
+
+<main>
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <div class="live-dot"></div>
+      Diagram Library
+    </div>
+    <h1>Architecture &amp;<br><span>Workflow Diagrams</span></h1>
+    <p>Technical reference diagrams for the Smart Venue Experience Platform,<br>built on Google Cloud infrastructure for large-scale sporting venues.</p>
+  </div>
+
+  <div class="cards">
+    <!-- Architecture Card -->
+    <a href="architecture.html" class="card card-arch">
+      <div class="card-header">
+        <div class="card-icon-wrap">🏗️</div>
+        <div class="card-arrow">↗</div>
+      </div>
+      <div class="card-label">Technical Reference</div>
+      <h2>System Architecture</h2>
+      <p>Five-layer GCP infrastructure diagram covering data sources, ingestion, processing, storage, and presentation. Includes all service connections and data flow paths.</p>
+      <div class="card-tags">
+        <span class="tag">Cloud Pub/Sub</span>
+        <span class="tag">Firestore</span>
+        <span class="tag">Cloud Functions</span>
+        <span class="tag">BigQuery</span>
+        <span class="tag">FCM</span>
+        <span class="tag">Maps Platform</span>
+      </div>
+    </a>
+
+    <!-- Workflow Card -->
+    <a href="workflow.html" class="card card-flow">
+      <div class="card-header">
+        <div class="card-icon-wrap">🔄</div>
+        <div class="card-arrow">↗</div>
+      </div>
+      <div class="card-label">Business Process</div>
+      <h2>Event Workflow</h2>
+      <p>End-to-end swimlane diagram across three stakeholder lanes — Attendee, GCP Backend, and Operations Team. Shows real-time data flow from sensor trigger to crowd resolution.</p>
+      <div class="card-tags">
+        <span class="tag">Attendee Journey</span>
+        <span class="tag">Real-time Events</span>
+        <span class="tag">Ops Response</span>
+        <span class="tag">6 Steps</span>
+        <span class="tag">3 Lanes</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value blue">5</div>
+      <div class="stat-label">GCP Services</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value green">1M+</div>
+      <div class="stat-label">Concurrent Connections</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value gold">&lt; 5s</div>
+      <div class="stat-label">Alert Delivery Time</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value pink">30s</div>
+      <div class="stat-label">Dashboard Refresh</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" style="color:#CE93D8">0</div>
+      <div class="stat-label">App Install Required</div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Smart Venue Experience Platform &nbsp;·&nbsp; APL Google Cloud Challenge &nbsp;·&nbsp;
+  <a href="architecture.html">Architecture</a> &nbsp;·&nbsp;
+  <a href="workflow.html">Workflow</a>
+</footer>
+
+</body>
+</html>

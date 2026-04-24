@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Venue Platform — Event Workflow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #05091a;
+      color: #e2e8f8;
+      font-family: 'Inter', -apple-system, sans-serif;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 80% 20%, rgba(52,168,83,0.07) 0%, transparent 100%),
+        radial-gradient(ellipse 50% 40% at 20% 80%, rgba(66,133,244,0.06) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    header {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 52px 22px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      background: rgba(5,9,26,0.8);
+      backdrop-filter: blur(10px);
+    }
+
+    .header-left { display: flex; align-items: center; gap: 18px; }
+
+    .pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: linear-gradient(135deg, rgba(52,168,83,0.2), rgba(66,133,244,0.2));
+      border: 1px solid rgba(52,168,83,0.35);
+      border-radius: 20px;
+      padding: 5px 13px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #7ed99b;
+      text-transform: uppercase;
+    }
+
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #34A853; box-shadow: 0 0 6px #34A853; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+
+    .header-title h1 { font-size: 20px; font-weight: 800; color: #fff; }
+    .header-title p { font-size: 12px; color: rgba(255,255,255,0.38); margin-top: 2px; }
+
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 16px; border-radius: 8px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 500;
+      text-decoration: none; transition: all .2s; margin-left: 12px;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.1); color:#fff; }
+
+    main { position: relative; z-index: 1; padding: 32px 52px 24px; }
+
+    .diagram-wrap {
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.02);
+      overflow: hidden;
+      animation: fadeUp 0.5s ease forwards;
+      margin-bottom: 24px;
+    }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+    svg { width: 100%; height: auto; display: block; }
+
+    .scenario-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 0;
+    }
+
+    .scenario-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+    .scenario-card:hover { border-color: rgba(255,255,255,0.18); }
+
+    .card-icon { font-size: 28px; margin-bottom: 10px; }
+    .card-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .card-desc { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.6; }
+    .card-metric { font-size: 11px; color: rgba(52,168,83,0.9); margin-top: 10px; font-weight: 600; }
+
+    footer {
+      position: relative; z-index: 1;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 52px 24px;
+      font-size: 11px; color: rgba(255,255,255,0.2);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="pill"><div class="dot"></div>Google Cloud</div>
+    <div class="header-title">
+      <h1>Smart Venue Experience Platform</h1>
+      <p>Real-Time Event Workflow · End-to-End Data Flow &amp; User Journey</p>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;">
+    <a href="index.html" class="nav-btn">← Back</a>
+    <a href="architecture.html" class="nav-btn">Architecture →</a>
+  </div>
+</header>
+
+<main>
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 1240 640" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="dots" width="32" height="32" patternUnits="userSpaceOnUse">
+          <circle cx="1" cy="1" r="1" fill="rgba(255,255,255,0.04)"/>
+        </pattern>
+
+        <!-- Lane gradients -->
+        <linearGradient id="laneAtd" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="rgba(13,71,161,0.28)"/>
+          <stop offset="100%" stop-color="rgba(13,71,161,0.08)"/>
+        </linearGradient>
+        <linearGradient id="laneGCP" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="rgba(74,20,140,0.25)"/>
+          <stop offset="100%" stop-color="rgba(27,94,32,0.15)"/>
+        </linearGradient>
+        <linearGradient id="laneOps" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="rgba(0,77,64,0.28)"/>
+          <stop offset="100%" stop-color="rgba(0,77,64,0.08)"/>
+        </linearGradient>
+
+        <!-- Step box gradients -->
+        <linearGradient id="sAtd" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1565C0"/>
+          <stop offset="100%" stop-color="#0D47A1"/>
+        </linearGradient>
+        <linearGradient id="sPub" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#6A1B9A"/>
+          <stop offset="100%" stop-color="#4A148C"/>
+        </linearGradient>
+        <linearGradient id="sFn" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2E7D32"/>
+          <stop offset="100%" stop-color="#1B5E20"/>
+        </linearGradient>
+        <linearGradient id="sFS" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#E64A19"/>
+          <stop offset="100%" stop-color="#BF360C"/>
+        </linearGradient>
+        <linearGradient id="sFCM" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#C2185B"/>
+          <stop offset="100%" stop-color="#880E4F"/>
+        </linearGradient>
+        <linearGradient id="sBQ" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0097A7"/>
+          <stop offset="100%" stop-color="#006064"/>
+        </linearGradient>
+        <linearGradient id="sOps" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#00796B"/>
+          <stop offset="100%" stop-color="#004D40"/>
+        </linearGradient>
+
+        <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%">
+          <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="rgba(0,0,0,0.5)"/>
+        </filter>
+        <filter id="glow-b">
+          <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="rgba(66,133,244,0.7)"/>
+        </filter>
+        <filter id="glow-g">
+          <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="rgba(52,168,83,0.7)"/>
+        </filter>
+
+        <marker id="arr-b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0,8 3,0 6" fill="#4285F4"/>
+        </marker>
+        <marker id="arr-g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0,8 3,0 6" fill="#34A853"/>
+        </marker>
+        <marker id="arr-p" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0,8 3,0 6" fill="#CE93D8"/>
+        </marker>
+        <marker id="arr-o" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0,8 3,0 6" fill="#FBBC04"/>
+        </marker>
+        <marker id="arr-t" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0,8 3,0 6" fill="#26C6DA"/>
+        </marker>
+        <marker id="arr-r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0,8 3,0 6" fill="#F48FB1"/>
+        </marker>
+      </defs>
+
+      <rect width="1240" height="640" fill="url(#dots)"/>
+
+      <!-- ── SWIMLANE STRUCTURE ────────────────────────────── -->
+      <!-- Lane headers -->
+      <rect x="0" y="0" width="1240" height="42" fill="rgba(0,0,0,0.3)"/>
+      <line x1="0" y1="42" x2="1240" y2="42" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+      <line x1="0" y1="212" x2="1240" y2="212" stroke="rgba(255,255,255,0.07)" stroke-width="1" stroke-dasharray="6,4"/>
+      <line x1="0" y1="432" x2="1240" y2="432" stroke="rgba(255,255,255,0.07)" stroke-width="1" stroke-dasharray="6,4"/>
+
+      <!-- Lane backgrounds -->
+      <rect x="0" y="42"  width="1240" height="170" fill="url(#laneAtd)"/>
+      <rect x="0" y="212" width="1240" height="220" fill="url(#laneGCP)"/>
+      <rect x="0" y="432" width="1240" height="170" fill="url(#laneOps)"/>
+
+      <!-- Lane labels -->
+      <rect x="0" y="42" width="90" height="170" fill="rgba(13,71,161,0.35)" stroke="rgba(66,133,244,0.2)" stroke-width="0"/>
+      <text x="45" y="132" text-anchor="middle" font-family="Inter" font-size="10" font-weight="700" fill="rgba(66,133,244,0.9)" letter-spacing="1.5" transform="rotate(-90,45,132)">ATTENDEE</text>
+
+      <rect x="0" y="212" width="90" height="220" fill="rgba(74,20,140,0.25)"/>
+      <text x="45" y="322" text-anchor="middle" font-family="Inter" font-size="10" font-weight="700" fill="rgba(206,147,216,0.9)" letter-spacing="1.5" transform="rotate(-90,45,322)">GCP BACKEND</text>
+
+      <rect x="0" y="432" width="90" height="170" fill="rgba(0,77,64,0.3)"/>
+      <text x="45" y="517" text-anchor="middle" font-family="Inter" font-size="10" font-weight="700" fill="rgba(38,198,218,0.9)" letter-spacing="1.5" transform="rotate(-90,45,517)">OPS TEAM</text>
+
+      <!-- Lane header labels (top bar) -->
+      <circle cx="45" cy="21" r="14" fill="rgba(66,133,244,0.25)" stroke="rgba(66,133,244,0.4)" stroke-width="1"/>
+      <text x="45" y="26" text-anchor="middle" font-family="Inter" font-size="13">📱</text>
+      <text x="90" y="25" font-family="Inter" font-size="11" font-weight="700" fill="rgba(255,255,255,0.7)" letter-spacing="0.5">ATTENDEE EXPERIENCE</text>
+
+      <circle cx="465" cy="21" r="14" fill="rgba(149,117,205,0.25)" stroke="rgba(149,117,205,0.4)" stroke-width="1"/>
+      <text x="465" y="26" text-anchor="middle" font-family="Inter" font-size="13">☁️</text>
+      <text x="510" y="25" font-family="Inter" font-size="11" font-weight="700" fill="rgba(255,255,255,0.7)" letter-spacing="0.5">GCP CLOUD BACKEND</text>
+
+      <circle cx="465" cy="441" r="14" fill="rgba(0,121,107,0.25)" stroke="rgba(0,121,107,0.4)" stroke-width="1"/>
+      <text x="465" y="446" text-anchor="middle" font-family="Inter" font-size="13">👷</text>
+      <text x="510" y="445" font-family="Inter" font-size="11" font-weight="700" fill="rgba(255,255,255,0.7)" letter-spacing="0.5">OPERATIONS TEAM</text>
+
+      <!-- ── STEP COLUMNS ─────────────────────────────────────
+           Cols at x center: 175, 370, 565, 760, 955, 1105(narrow)
+           Box width: 155, box left = cx - 77
+      -->
+
+      <!-- Step numbers in top bar -->
+      <text x="175"  y="25" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="rgba(255,255,255,0.25)" letter-spacing="2">STEP 01</text>
+      <text x="370"  y="25" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="rgba(255,255,255,0.25)" letter-spacing="2">STEP 02</text>
+      <text x="565"  y="25" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="rgba(255,255,255,0.25)" letter-spacing="2">STEP 03</text>
+      <text x="760"  y="25" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="rgba(255,255,255,0.25)" letter-spacing="2">STEP 04</text>
+      <text x="955"  y="25" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="rgba(255,255,255,0.25)" letter-spacing="2">STEP 05</text>
+      <text x="1140" y="25" text-anchor="middle" font-family="Inter" font-size="9" font-weight="700" fill="rgba(255,255,255,0.25)" letter-spacing="2">STEP 06</text>
+
+      <!-- Column dividers -->
+      <line x1="275"  y1="42" x2="275"  y2="600" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <line x1="470"  y1="42" x2="470"  y2="600" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <line x1="665"  y1="42" x2="665"  y2="600" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <line x1="860"  y1="42" x2="860"  y2="600" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <line x1="1060" y1="42" x2="1060" y2="600" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+
+      <!-- ══════════════════════════════════════════════════════
+           ATTENDEE LANE  (y: 42–212, center y≈127)
+      ══════════════════════════════════════════════════════ -->
+
+      <!-- A1: Arrive & Scan QR -->
+      <rect x="100" y="60" width="150" height="115" rx="10" fill="url(#sAtd)" filter="url(#shadow)"/>
+      <rect x="100" y="60" width="150" height="115" rx="10" fill="none" stroke="rgba(66,133,244,0.5)" stroke-width="1.5"/>
+      <text x="175" y="85" text-anchor="middle" font-family="Inter" font-size="24">🏟️</text>
+      <text x="175" y="103" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">Arrive at Venue</text>
+      <line x1="110" y1="110" x2="240" y2="110" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="175" y="125" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Scan QR code</text>
+      <text x="175" y="140" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">at gate entry</text>
+      <text x="175" y="155" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Opens PWA instantly</text>
+      <!-- Circle step number -->
+      <circle cx="100" cy="60" r="12" fill="#1565C0" stroke="rgba(66,133,244,0.8)" stroke-width="1.5"/>
+      <text x="100" y="64" text-anchor="middle" font-family="Inter" font-size="9" font-weight="800" fill="#fff">01</text>
+
+      <!-- A1 → A2 arrow -->
+      <line x1="250" y1="118" x2="295" y2="118" stroke="#4285F4" stroke-width="2" marker-end="url(#arr-b)"/>
+
+      <!-- A2: Browse PWA -->
+      <rect x="295" y="60" width="150" height="115" rx="10" fill="url(#sAtd)" filter="url(#shadow)"/>
+      <rect x="295" y="60" width="150" height="115" rx="10" fill="none" stroke="rgba(66,133,244,0.5)" stroke-width="1.5"/>
+      <text x="370" y="85" text-anchor="middle" font-family="Inter" font-size="24">📱</text>
+      <text x="370" y="103" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">Browse PWA</text>
+      <line x1="305" y1="110" x2="435" y2="110" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="370" y="125" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">View live queues</text>
+      <text x="370" y="140" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">See venue heatmap</text>
+      <text x="370" y="155" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Plan route to seat</text>
+      <circle cx="295" cy="60" r="12" fill="#1565C0" stroke="rgba(66,133,244,0.8)" stroke-width="1.5"/>
+      <text x="295" y="64" text-anchor="middle" font-family="Inter" font-size="9" font-weight="800" fill="#fff">02</text>
+
+      <!-- A2 → A3 arrow -->
+      <line x1="445" y1="118" x2="490" y2="118" stroke="#4285F4" stroke-width="2" marker-end="url(#arr-b)"/>
+
+      <!-- A3: Receives Notification -->
+      <rect x="490" y="60" width="150" height="115" rx="10" fill="url(#sAtd)" filter="url(#shadow)"/>
+      <rect x="490" y="60" width="150" height="115" rx="10" fill="none" stroke="rgba(66,133,244,0.5)" stroke-width="1.5"/>
+      <text x="565" y="85" text-anchor="middle" font-family="Inter" font-size="24">🔔</text>
+      <text x="565" y="103" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">Alert Received</text>
+      <line x1="500" y1="110" x2="630" y2="110" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="565" y="125" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">"Zone B is busy"</text>
+      <text x="565" y="140" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">"Try concession C"</text>
+      <text x="565" y="155" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Push notification</text>
+      <circle cx="490" cy="60" r="12" fill="#1565C0" stroke="rgba(66,133,244,0.8)" stroke-width="1.5"/>
+      <text x="490" y="64" text-anchor="middle" font-family="Inter" font-size="9" font-weight="800" fill="#fff">03</text>
+
+      <!-- A3 → A4 arrow -->
+      <line x1="640" y1="118" x2="685" y2="118" stroke="#4285F4" stroke-width="2" marker-end="url(#arr-b)"/>
+
+      <!-- A4: Navigates -->
+      <rect x="685" y="60" width="150" height="115" rx="10" fill="url(#sAtd)" filter="url(#shadow)"/>
+      <rect x="685" y="60" width="150" height="115" rx="10" fill="none" stroke="rgba(66,133,244,0.5)" stroke-width="1.5"/>
+      <text x="760" y="85" text-anchor="middle" font-family="Inter" font-size="24">🗺️</text>
+      <text x="760" y="103" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">Navigate</text>
+      <line x1="695" y1="110" x2="825" y2="110" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="760" y="125" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Indoor routing</text>
+      <text x="760" y="140" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Avoid crowds</text>
+      <text x="760" y="155" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Turn-by-turn guide</text>
+      <circle cx="685" cy="60" r="12" fill="#1565C0" stroke="rgba(66,133,244,0.8)" stroke-width="1.5"/>
+      <text x="685" y="64" text-anchor="middle" font-family="Inter" font-size="9" font-weight="800" fill="#fff">04</text>
+
+      <!-- A4 → A5 arrow -->
+      <line x1="835" y1="118" x2="880" y2="118" stroke="#4285F4" stroke-width="2" marker-end="url(#arr-b)"/>
+
+      <!-- A5: Enjoys -->
+      <rect x="880" y="60" width="150" height="115" rx="10" fill="url(#sAtd)" filter="url(#shadow)"/>
+      <rect x="880" y="60" width="150" height="115" rx="10" fill="none" stroke="rgba(66,133,244,0.5)" stroke-width="1.5"/>
+      <text x="955" y="85" text-anchor="middle" font-family="Inter" font-size="24">🎉</text>
+      <text x="955" y="103" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">Seamless Event</text>
+      <line x1="890" y1="110" x2="1020" y2="110" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="955" y="125" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Shorter wait times</text>
+      <text x="955" y="140" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Better experience</text>
+      <text x="955" y="155" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Higher satisfaction</text>
+      <circle cx="880" cy="60" r="12" fill="#1565C0" stroke="rgba(66,133,244,0.8)" stroke-width="1.5"/>
+      <text x="880" y="64" text-anchor="middle" font-family="Inter" font-size="9" font-weight="800" fill="#fff">05</text>
+
+      <!-- A6: Feedback -->
+      <rect x="1075" y="60" width="150" height="115" rx="10" fill="url(#sAtd)" filter="url(#shadow)"/>
+      <rect x="1075" y="60" width="150" height="115" rx="10" fill="none" stroke="rgba(66,133,244,0.5)" stroke-width="1.5"/>
+      <text x="1150" y="85" text-anchor="middle" font-family="Inter" font-size="24">⭐</text>
+      <text x="1150" y="103" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">Post-Event</text>
+      <line x1="1085" y1="110" x2="1215" y2="110" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="1150" y="125" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Satisfaction survey</text>
+      <text x="1150" y="140" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Data to BigQuery</text>
+      <text x="1150" y="155" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Continuous learning</text>
+      <circle cx="1075" cy="60" r="12" fill="#1565C0" stroke="rgba(66,133,244,0.8)" stroke-width="1.5"/>
+      <text x="1075" y="64" text-anchor="middle" font-family="Inter" font-size="9" font-weight="800" fill="#fff">06</text>
+      <line x1="1030" y1="118" x2="1075" y2="118" stroke="#4285F4" stroke-width="2" marker-end="url(#arr-b)"/>
+
+      <!-- ══════════════════════════════════════════════════════
+           GCP BACKEND LANE  (y: 212–432, center y≈322)
+      ══════════════════════════════════════════════════════ -->
+
+      <!-- B1: Pub/Sub Ingest -->
+      <rect x="100" y="228" width="150" height="180" rx="10" fill="url(#sPub)" filter="url(#shadow)"/>
+      <rect x="100" y="228" width="150" height="180" rx="10" fill="none" stroke="rgba(206,147,216,0.45)" stroke-width="1.5"/>
+      <text x="175" y="256" text-anchor="middle" font-family="Inter" font-size="24">☁️</text>
+      <text x="175" y="276" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">Pub/Sub Ingest</text>
+      <line x1="110" y1="283" x2="240" y2="283" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="175" y="300" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Gate event published</text>
+      <text x="175" y="317" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">POS transaction</text>
+      <text x="175" y="334" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Sensor occupancy</text>
+      <text x="175" y="351" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Async delivery</text>
+      <rect x="120" y="368" width="110" height="16" rx="4" fill="rgba(255,255,255,0.08)"/>
+      <text x="175" y="380" text-anchor="middle" font-family="Inter" font-size="8.5" font-weight="700" fill="rgba(206,147,216,0.9)">10M+ events/sec</text>
+
+      <!-- B1 → B2 -->
+      <line x1="250" y1="318" x2="295" y2="318" stroke="#CE93D8" stroke-width="2" marker-end="url(#arr-p)"/>
+
+      <!-- B2: Cloud Functions Process -->
+      <rect x="295" y="228" width="150" height="180" rx="10" fill="url(#sFn)" filter="url(#shadow)"/>
+      <rect x="295" y="228" width="150" height="180" rx="10" fill="none" stroke="rgba(165,214,167,0.45)" stroke-width="1.5"/>
+      <text x="370" y="256" text-anchor="middle" font-family="Inter" font-size="24">⚡</text>
+      <text x="370" y="276" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">Process &amp; Analyse</text>
+      <line x1="305" y1="283" x2="435" y2="283" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="370" y="300" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Cloud Function fires</text>
+      <text x="370" y="317" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Calculate density</text>
+      <text x="370" y="334" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Queue estimation</text>
+      <text x="370" y="351" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Threshold check</text>
+      <rect x="315" y="368" width="110" height="16" rx="4" fill="rgba(255,255,255,0.08)"/>
+      <text x="370" y="380" text-anchor="middle" font-family="Inter" font-size="8.5" font-weight="700" fill="rgba(165,214,167,0.9)">Serverless · Auto-scale</text>
+
+      <!-- B2 → B3 -->
+      <line x1="445" y1="318" x2="490" y2="318" stroke="#A5D6A7" stroke-width="2" marker-end="url(#arr-g)"/>
+
+      <!-- B3: Firestore Update -->
+      <rect x="490" y="228" width="150" height="180" rx="10" fill="url(#sFS)" filter="url(#shadow)"/>
+      <rect x="490" y="228" width="150" height="180" rx="10" fill="none" stroke="rgba(255,138,101,0.45)" stroke-width="1.5"/>
+      <text x="565" y="256" text-anchor="middle" font-family="Inter" font-size="24">🔥</text>
+      <text x="565" y="276" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">Firestore Update</text>
+      <line x1="500" y1="283" x2="630" y2="283" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="565" y="300" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Zone status written</text>
+      <text x="565" y="317" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">PWA gets real-time</text>
+      <text x="565" y="334" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">push via snapshot</text>
+      <text x="565" y="351" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">listener</text>
+      <rect x="510" y="368" width="110" height="16" rx="4" fill="rgba(255,255,255,0.08)"/>
+      <text x="565" y="380" text-anchor="middle" font-family="Inter" font-size="8.5" font-weight="700" fill="rgba(255,138,101,0.9)">&lt; 100ms latency</text>
+
+      <!-- B3 → B4 (FCM) -->
+      <line x1="640" y1="318" x2="685" y2="318" stroke="#FBBC04" stroke-width="2" marker-end="url(#arr-o)"/>
+
+      <!-- B4: FCM Dispatch -->
+      <rect x="685" y="228" width="150" height="180" rx="10" fill="url(#sFCM)" filter="url(#shadow)"/>
+      <rect x="685" y="228" width="150" height="180" rx="10" fill="none" stroke="rgba(244,143,177,0.45)" stroke-width="1.5"/>
+      <text x="760" y="256" text-anchor="middle" font-family="Inter" font-size="24">🔔</text>
+      <text x="760" y="276" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">FCM Dispatch</text>
+      <line x1="695" y1="283" x2="825" y2="283" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="760" y="300" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Threshold breached</text>
+      <text x="760" y="317" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Targeted zone alert</text>
+      <text x="760" y="334" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Push to attendees</text>
+      <text x="760" y="351" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">in affected area</text>
+      <rect x="705" y="368" width="110" height="16" rx="4" fill="rgba(255,255,255,0.08)"/>
+      <text x="760" y="380" text-anchor="middle" font-family="Inter" font-size="8.5" font-weight="700" fill="rgba(244,143,177,0.9)">&lt; 5s delivery</text>
+
+      <!-- B4 → B5 -->
+      <line x1="835" y1="318" x2="880" y2="318" stroke="#F48FB1" stroke-width="2" marker-end="url(#arr-r)"/>
+
+      <!-- B5: BigQuery Log -->
+      <rect x="880" y="228" width="150" height="180" rx="10" fill="url(#sBQ)" filter="url(#shadow)"/>
+      <rect x="880" y="228" width="150" height="180" rx="10" fill="none" stroke="rgba(38,198,218,0.4)" stroke-width="1.5"/>
+      <text x="955" y="256" text-anchor="middle" font-family="Inter" font-size="24">📊</text>
+      <text x="955" y="276" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">BigQuery Log</text>
+      <line x1="890" y1="283" x2="1020" y2="283" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="955" y="300" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">All events logged</text>
+      <text x="955" y="317" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Analytics pipeline</text>
+      <text x="955" y="334" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Historical queries</text>
+      <text x="955" y="351" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">ML-ready dataset</text>
+      <rect x="900" y="368" width="110" height="16" rx="4" fill="rgba(255,255,255,0.08)"/>
+      <text x="955" y="380" text-anchor="middle" font-family="Inter" font-size="8.5" font-weight="700" fill="rgba(38,198,218,0.9)">Petabyte scale</text>
+
+      <!-- B5 → B6 -->
+      <line x1="1030" y1="318" x2="1075" y2="318" stroke="#26C6DA" stroke-width="2" marker-end="url(#arr-t)"/>
+
+      <!-- B6: Looker Studio -->
+      <rect x="1075" y="228" width="150" height="180" rx="10" fill="url(#sOps)" filter="url(#shadow)"/>
+      <rect x="1075" y="228" width="150" height="180" rx="10" fill="none" stroke="rgba(38,198,218,0.4)" stroke-width="1.5"/>
+      <text x="1150" y="256" text-anchor="middle" font-family="Inter" font-size="24">📈</text>
+      <text x="1150" y="276" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">Looker Dashboard</text>
+      <line x1="1085" y1="283" x2="1215" y2="283" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="1150" y="300" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">30s refresh cycle</text>
+      <text x="1150" y="317" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Crowd heatmaps</text>
+      <text x="1150" y="334" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Queue trends</text>
+      <text x="1150" y="351" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Bottleneck alerts</text>
+      <rect x="1095" y="368" width="110" height="16" rx="4" fill="rgba(255,255,255,0.08)"/>
+      <text x="1150" y="380" text-anchor="middle" font-family="Inter" font-size="8.5" font-weight="700" fill="rgba(38,198,218,0.9)">Zero-code BI tool</text>
+
+      <!-- ══════════════════════════════════════════════════════
+           OPS TEAM LANE  (y: 432–600, center y≈516)
+      ══════════════════════════════════════════════════════ -->
+
+      <!-- O1: Deploy Staff -->
+      <rect x="100" y="450" width="150" height="148" rx="10" fill="url(#sOps)" filter="url(#shadow)"/>
+      <rect x="100" y="450" width="150" height="148" rx="10" fill="none" stroke="rgba(38,198,218,0.4)" stroke-width="1.5"/>
+      <text x="175" y="476" text-anchor="middle" font-family="Inter" font-size="24">📋</text>
+      <text x="175" y="496" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">Monitor Dashboard</text>
+      <line x1="110" y1="503" x2="240" y2="503" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="175" y="520" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Live crowd view</text>
+      <text x="175" y="537" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Zone status board</text>
+      <text x="175" y="554" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Baseline patrol</text>
+
+      <line x1="250" y1="524" x2="295" y2="524" stroke="#26C6DA" stroke-width="2" marker-end="url(#arr-t)"/>
+
+      <!-- O2: Receive Alert -->
+      <rect x="295" y="450" width="150" height="148" rx="10" fill="url(#sOps)" filter="url(#shadow)"/>
+      <rect x="295" y="450" width="150" height="148" rx="10" fill="none" stroke="rgba(38,198,218,0.4)" stroke-width="1.5"/>
+      <text x="370" y="476" text-anchor="middle" font-family="Inter" font-size="24">⚠️</text>
+      <text x="370" y="496" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">Alert Triggered</text>
+      <line x1="305" y1="503" x2="435" y2="503" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="370" y="520" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">&gt;80% zone capacity</text>
+      <text x="370" y="537" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Auto alert on dash</text>
+      <text x="370" y="554" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Staff notified</text>
+
+      <line x1="445" y1="524" x2="490" y2="524" stroke="#26C6DA" stroke-width="2" marker-end="url(#arr-t)"/>
+
+      <!-- O3: View Heatmap -->
+      <rect x="490" y="450" width="150" height="148" rx="10" fill="url(#sOps)" filter="url(#shadow)"/>
+      <rect x="490" y="450" width="150" height="148" rx="10" fill="none" stroke="rgba(38,198,218,0.4)" stroke-width="1.5"/>
+      <text x="565" y="476" text-anchor="middle" font-family="Inter" font-size="24">🔥</text>
+      <text x="565" y="496" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">View Heatmap</text>
+      <line x1="500" y1="503" x2="630" y2="503" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="565" y="520" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Density per zone</text>
+      <text x="565" y="537" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Bottleneck location</text>
+      <text x="565" y="554" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Queue trend chart</text>
+
+      <line x1="640" y1="524" x2="685" y2="524" stroke="#26C6DA" stroke-width="2" marker-end="url(#arr-t)"/>
+
+      <!-- O4: Take Action -->
+      <rect x="685" y="450" width="150" height="148" rx="10" fill="url(#sOps)" filter="url(#shadow)"/>
+      <rect x="685" y="450" width="150" height="148" rx="10" fill="none" stroke="rgba(38,198,218,0.4)" stroke-width="1.5"/>
+      <text x="760" y="476" text-anchor="middle" font-family="Inter" font-size="24">🚀</text>
+      <text x="760" y="496" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">Take Action</text>
+      <line x1="695" y1="503" x2="825" y2="503" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="760" y="520" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Deploy extra staff</text>
+      <text x="760" y="537" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Open new lane</text>
+      <text x="760" y="554" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Broadcast message</text>
+
+      <line x1="835" y1="524" x2="880" y2="524" stroke="#26C6DA" stroke-width="2" marker-end="url(#arr-t)"/>
+
+      <!-- O5: Verify Resolution -->
+      <rect x="880" y="450" width="150" height="148" rx="10" fill="url(#sOps)" filter="url(#shadow)"/>
+      <rect x="880" y="450" width="150" height="148" rx="10" fill="none" stroke="rgba(38,198,218,0.4)" stroke-width="1.5"/>
+      <text x="955" y="476" text-anchor="middle" font-family="Inter" font-size="24">✅</text>
+      <text x="955" y="496" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">Verify Resolution</text>
+      <line x1="890" y1="503" x2="1020" y2="503" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="955" y="520" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Crowd normalises</text>
+      <text x="955" y="537" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Alert auto-resolves</text>
+      <text x="955" y="554" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Log incident</text>
+
+      <line x1="1030" y1="524" x2="1075" y2="524" stroke="#26C6DA" stroke-width="2" marker-end="url(#arr-t)"/>
+
+      <!-- O6: Post Event Review -->
+      <rect x="1075" y="450" width="150" height="148" rx="10" fill="url(#sOps)" filter="url(#shadow)"/>
+      <rect x="1075" y="450" width="150" height="148" rx="10" fill="none" stroke="rgba(38,198,218,0.4)" stroke-width="1.5"/>
+      <text x="1150" y="476" text-anchor="middle" font-family="Inter" font-size="24">📝</text>
+      <text x="1150" y="496" text-anchor="middle" font-family="Inter" font-size="11" font-weight="700" fill="#fff">Post-Event Report</text>
+      <line x1="1085" y1="503" x2="1215" y2="503" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="1150" y="520" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">BigQuery analysis</text>
+      <text x="1150" y="537" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Looker Studio report</text>
+      <text x="1150" y="554" text-anchor="middle" font-family="Inter" font-size="9.5" fill="rgba(255,255,255,0.65)">Next event planning</text>
+
+      <!-- ══════════════════════════════════════════════════════
+           CROSS-LANE CONNECTIONS (vertical)
+      ══════════════════════════════════════════════════════ -->
+
+      <!-- A1 QR Scan → B1 Pub/Sub event (at col 1) -->
+      <path d="M 175 175 L 175 200 L 175 228" stroke="rgba(66,133,244,0.5)" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arr-b)"/>
+      <rect x="120" y="194" width="110" height="14" rx="3" fill="rgba(5,9,26,0.8)"/>
+      <text x="175" y="204" text-anchor="middle" font-family="Inter" font-size="8" fill="rgba(66,133,244,0.7)">Gate event published</text>
+
+      <!-- B3 Firestore → A2 PWA real-time update (at col 3) -->
+      <path d="M 565 228 L 565 205 L 370 205 L 370 175" stroke="rgba(255,138,101,0.55)" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arr-o)"/>
+      <rect x="408" y="198" width="110" height="14" rx="3" fill="rgba(5,9,26,0.8)"/>
+      <text x="463" y="208" text-anchor="middle" font-family="Inter" font-size="8" fill="rgba(255,138,101,0.75)">Live data pushed to PWA</text>
+
+      <!-- B4 FCM → A3 notification received (at col 4) -->
+      <path d="M 760 228 L 760 205 L 565 205 L 565 175" stroke="rgba(244,143,177,0.55)" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arr-r)"/>
+
+      <!-- B6 Looker → O1 Dashboard (at col 6, right to ops) -->
+      <path d="M 1150 408 L 1150 428 L 1150 450" stroke="rgba(38,198,218,0.5)" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arr-t)"/>
+      <rect x="1095" y="424" width="110" height="14" rx="3" fill="rgba(5,9,26,0.8)"/>
+      <text x="1150" y="434" text-anchor="middle" font-family="Inter" font-size="8" fill="rgba(38,198,218,0.7)">Dashboard updates</text>
+
+      <!-- B3 alert → O2 Ops alert (col 3 backend → col 2 ops) -->
+      <path d="M 565 408 L 565 428 L 370 428 L 370 450" stroke="rgba(255,138,101,0.45)" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arr-o)"/>
+      <rect x="408" y="423" width="110" height="14" rx="3" fill="rgba(5,9,26,0.8)"/>
+      <text x="463" y="433" text-anchor="middle" font-family="Inter" font-size="8" fill="rgba(255,138,101,0.7)">Bottleneck alert fired</text>
+
+      <!-- O4 Broadcast → B3 (action triggers data update) -->
+      <path d="M 760 450 L 760 428 L 490 428 L 490 408" stroke="rgba(38,198,218,0.35)" stroke-width="1" fill="none" stroke-dasharray="4,4" marker-end="url(#arr-t)"/>
+
+      <!-- ── WATERMARK ───────────────────────────────────────── -->
+      <text x="620" y="630" text-anchor="middle" font-family="Inter" font-size="10" fill="rgba(255,255,255,0.1)" letter-spacing="2">SMART VENUE EXPERIENCE PLATFORM · REAL-TIME EVENT WORKFLOW</text>
+    </svg>
+  </div>
+
+  <!-- Scenario cards -->
+  <div class="scenario-cards">
+    <div class="scenario-card">
+      <div class="card-icon">⚡</div>
+      <div class="card-title">Crowd Surge Scenario</div>
+      <div class="card-desc">IoT sensor detects Zone B exceeds 80% capacity. Cloud Function triggers within 200ms. FCM alert sent to all Zone B attendees suggesting alternate routes within 5 seconds.</div>
+      <div class="card-metric">Resolution time: &lt; 10 minutes average</div>
+    </div>
+    <div class="scenario-card">
+      <div class="card-icon">🍔</div>
+      <div class="card-title">Queue Optimisation</div>
+      <div class="card-desc">POS data reveals concession stand queue exceeds 15 minutes. Attendees nearby receive targeted push notification: "Section C bar — 2 min wait right now."</div>
+      <div class="card-metric">Queue time accuracy: ± 2 minutes</div>
+    </div>
+    <div class="scenario-card">
+      <div class="card-icon">📊</div>
+      <div class="card-title">Post-Event Intelligence</div>
+      <div class="card-desc">BigQuery aggregates full event data. Looker Studio generates heatmap trends, peak crowd times, and concession performance — informing planning for the next event.</div>
+      <div class="card-metric">Data retention: Unlimited via BigQuery</div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div>APL Google Cloud Challenge · Smart Venue Platform · Workflow Diagram v1.0</div>
+  <div style="display:flex;gap:20px;">
+    <span style="display:flex;align-items:center;gap:6px;"><span style="width:20px;height:2px;background:#4285F4;display:inline-block"></span>Attendee flow</span>
+    <span style="display:flex;align-items:center;gap:6px;"><span style="width:20px;height:2px;background:#CE93D8;display:inline-block"></span>Backend flow</span>
+    <span style="display:flex;align-items:center;gap:6px;"><span style="width:20px;height:2px;background:#26C6DA;display:inline-block"></span>Ops flow</span>
+    <span style="display:flex;align-items:center;gap:6px;"><span style="width:20px;height:2px;background:rgba(255,255,255,0.3);display:inline-block;border-top:1px dashed rgba(255,255,255,0.3)"></span>Cross-lane event</span>
+  </div>
+</footer>
+
+</body>
+</html>

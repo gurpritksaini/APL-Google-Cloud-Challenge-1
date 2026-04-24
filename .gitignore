@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+.next/
+dist/
+out/
+build/
+
+# Environment
+.env
+.env.local
+.env.*.local
+*.env
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+ui-debug.log
+emulator-data/
+
+# Google Cloud
+gcloud-key.json
+serviceAccountKey.json
+*.json.key
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Turbo
+.turbo/
+
+# Coverage
+coverage/
+*.lcov
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Typescript
+*.tsbuildinfo
