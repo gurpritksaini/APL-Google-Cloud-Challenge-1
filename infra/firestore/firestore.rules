@@ -3,45 +3,38 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── Helper functions ────────────────────────────────────────────────────
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    function isCloudFunction() {
-      // Cloud Functions use the Admin SDK which bypasses security rules.
-      // This rule set focuses on client-side access control.
-      return false;
-    }
-
     // ── /zones/{zoneId} ─────────────────────────────────────────────────────
-    // Attendees read zone data in real-time; only backend writes.
+    // Public read — attendees see live zone data without signing in.
     match /zones/{zoneId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow write: if false; // Admin SDK only (Cloud Functions)
     }
 
     // ── /queues/{queueId} ───────────────────────────────────────────────────
     match /queues/{queueId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow write: if false;
     }
 
     // ── /alerts/{alertId} ───────────────────────────────────────────────────
     match /alerts/{alertId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow write: if false;
     }
 
     // ── /sessions/{sessionId} ───────────────────────────────────────────────
     match /sessions/{sessionId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow write: if false;
     }
 
     // ── /events/{eventId} ───────────────────────────────────────────────────
     match /events/{eventId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow write: if false;
     }
 

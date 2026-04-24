@@ -10,7 +10,7 @@ import {
   type DocumentData,
   type QueryConstraint,
 } from 'firebase/firestore';
-import { getDb } from '@/lib/firebase';
+import { getDb, ensureAnonymousAuth } from '@/lib/firebase';
 
 interface UseCollectionResult<T> {
   data: T[];
@@ -37,24 +37,33 @@ export function useCollection<T extends DocumentData>(
   const constraintKey = JSON.stringify(constraints.map((c) => c.type));
 
   useEffect(() => {
-    const db = getDb();
-    const q: Query<DocumentData> = query(collection(db, collectionPath), ...constraints);
+    let unsubscribe: (() => void) | null = null;
+    let cancelled = false;
 
-    const unsubscribe = onSnapshot(
-      q,
-      (snap) => {
-        const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as unknown as T);
-        setData(items);
-        setLoading(false);
-        setError(null);
-      },
-      (err) => {
-        setError(err as Error);
-        setLoading(false);
-      },
-    );
+    void ensureAnonymousAuth().then(() => {
+      if (cancelled) return;
+      const db = getDb();
+      const q: Query<DocumentData> = query(collection(db, collectionPath), ...constraints);
 
-    return () => unsubscribe();
+      unsubscribe = onSnapshot(
+        q,
+        (snap) => {
+          const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as unknown as T);
+          setData(items);
+          setLoading(false);
+          setError(null);
+        },
+        (err) => {
+          setError(err as Error);
+          setLoading(false);
+        },
+      );
+    });
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collectionPath, constraintKey]);
 
@@ -77,20 +86,28 @@ export function useDocument<T extends DocumentData>(
       return;
     }
 
-    const db = getDb();
-    unsubRef.current = onSnapshot(
-      doc(db, collectionPath, docId),
-      (snap) => {
-        setData(snap.exists() ? ({ id: snap.id, ...snap.data() } as unknown as T) : null);
-        setLoading(false);
-      },
-      (err) => {
-        setError(err as Error);
-        setLoading(false);
-      },
-    );
+    let cancelled = false;
 
-    return () => unsubRef.current?.();
+    void ensureAnonymousAuth().then(() => {
+      if (cancelled) return;
+      const db = getDb();
+      unsubRef.current = onSnapshot(
+        doc(db, collectionPath, docId),
+        (snap) => {
+          setData(snap.exists() ? ({ id: snap.id, ...snap.data() } as unknown as T) : null);
+          setLoading(false);
+        },
+        (err) => {
+          setError(err as Error);
+          setLoading(false);
+        },
+      );
+    });
+
+    return () => {
+      cancelled = true;
+      unsubRef.current?.();
+    };
   }, [collectionPath, docId]);
 
   return { data, loading, error };
