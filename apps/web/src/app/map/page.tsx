@@ -333,7 +333,7 @@ export default function MapPage() {
         }
       } else {
         for (let i = target; i < existing_p.length; i++) {
-          existing_p[i]!.targetAlpha = 0;
+          existing_p[i].targetAlpha = 0;
         }
       }
     });
