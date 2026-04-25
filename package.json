@@ -28,6 +28,7 @@
     "simulate:pos": "tsx scripts/simulators/simulate-pos.ts",
     "simulate:sensors": "tsx scripts/simulators/simulate-sensors.ts",
     "simulate:all": "tsx scripts/simulators/run-all.ts",
+    "simulate:live": "tsx scripts/simulators/simulate-direct.ts",
     "seed": "tsx scripts/seed/seed-firestore.ts",
     "emulate": "firebase emulators:start --import=./emulator-data --export-on-exit",
     "deploy:functions": "cd functions && firebase deploy --only functions",

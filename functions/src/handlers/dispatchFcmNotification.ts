@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions/v2';
 import { messaging, zonesCol } from '../lib/firebase.js';
 import type { AlertDoc } from '../lib/schemas.js';
+import { fcmTitle, fcmAction } from '../lib/logic.js';
 
 // T017: dispatch-fcm-notification
 // Trigger: Firestore onDocumentCreated /alerts/{alertId}
@@ -22,13 +23,8 @@ export const dispatchFcmNotification = functions.firestore.onDocumentCreated(
     const zoneSnap = await zonesCol().doc(zone).get();
     const zoneName = zoneSnap.exists ? (zoneSnap.data()?.['name'] as string) : zone;
 
-    const title =
-      severity === 'critical'
-        ? `⚠️ Busy Area Alert — ${zoneName}`
-        : `ℹ️ Area Update — ${zoneName}`;
-
-    const action =
-      type === 'occupancy_critical' || type === 'occupancy_warn' ? 'avoid' : 'navigate';
+    const title = fcmTitle(severity, zoneName);
+    const action = fcmAction(type);
 
     // Send to zone-specific FCM topic (attendees subscribed at entry scan)
     const fcmTopic = `zone-${zone}`;
@@ -60,7 +56,7 @@ export const dispatchFcmNotification = functions.firestore.onDocumentCreated(
         },
         payload: {
           aps: {
-            sound: severity === 'critical' ? 'default' : undefined,
+            ...(severity === 'critical' ? { sound: 'default' } : {}),
             badge: 1,
           },
         },

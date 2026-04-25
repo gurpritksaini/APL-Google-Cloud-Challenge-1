@@ -2,6 +2,7 @@ import * as functions from 'firebase-functions/v2';
 import * as admin from 'firebase-admin';
 import { db, bq, zonesCol, alertsCol, DATASET } from '../lib/firebase.js';
 import type { ZoneDoc, AlertDoc } from '../lib/schemas.js';
+import { alertMessage } from '../lib/logic.js';
 
 const WARN_THRESHOLD = 70;
 const CRITICAL_THRESHOLD = 85;
@@ -51,9 +52,7 @@ export const evaluateZoneThresholds = functions.scheduler.onSchedule(
           // Create new alert
           const alertRef = alertsCol().doc();
           const severity = isCritical ? 'critical' : 'warning';
-          const message = isCritical
-            ? `Zone ${zone.name} is at critical capacity (${pct.toFixed(1)}%). Avoid this area.`
-            : `Zone ${zone.name} is getting busy (${pct.toFixed(1)}%). Consider alternatives.`;
+          const message = alertMessage(zone.name, pct, alertType);
 
           batch.set(alertRef, {
             zone: zoneId,

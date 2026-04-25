@@ -2,6 +2,7 @@ import * as functions from 'firebase-functions/v2';
 import * as admin from 'firebase-admin';
 import { bq, zonesCol, DATASET } from '../lib/firebase.js';
 import { sensorEventSchema } from '../lib/schemas.js';
+import { zoneStatus } from '../lib/logic.js';
 
 // T015: process-sensor-event
 // Trigger: Pub/Sub topic venue-sensor-events
@@ -24,12 +25,7 @@ export const processSensorEvent = functions.pubsub.onMessagePublished(
 
     const payload = parsed.data;
 
-    const status =
-      payload.occupancy_pct >= 85
-        ? 'critical'
-        : payload.occupancy_pct >= 70
-          ? 'warning'
-          : 'normal';
+    const status = zoneStatus(payload.occupancy_pct);
 
     // ── 1. Update zone in Firestore ─────────────────────────
     await zonesCol().doc(payload.zone_id).set(

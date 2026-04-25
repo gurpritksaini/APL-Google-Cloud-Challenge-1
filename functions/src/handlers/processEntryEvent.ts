@@ -3,6 +3,7 @@ import * as admin from 'firebase-admin';
 import { z } from 'zod';
 import { db, bq, zonesCol, DATASET } from '../lib/firebase.js';
 import { entryEventSchema } from '../lib/schemas.js';
+import { zoneStatus } from '../lib/logic.js';
 
 // T013: process-entry-event
 // Trigger: Pub/Sub topic venue-entry-events
@@ -41,8 +42,7 @@ export const processEntryEvent = functions.pubsub.onMessagePublished(
       const newOccupancyPct =
         data['capacity'] > 0 ? (newCurrent / (data['capacity'] as number)) * 100 : 0;
 
-      const status =
-        newOccupancyPct >= 85 ? 'critical' : newOccupancyPct >= 70 ? 'warning' : 'normal';
+      const status = zoneStatus(newOccupancyPct);
 
       tx.update(zoneRef, {
         current: newCurrent,

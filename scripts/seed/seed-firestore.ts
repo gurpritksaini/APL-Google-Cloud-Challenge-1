@@ -19,14 +19,15 @@ const now = admin.firestore.Timestamp.now();
 
 // ── Seed zones ───────────────────────────────────────────────
 const ZONES = [
-  { id: 'zone-A', name: 'Main Entrance', capacity: 8000, lat: -33.8688, lng: 151.2093 },
-  { id: 'zone-B', name: 'Level 1 Concourse', capacity: 10000, lat: -33.8685, lng: 151.2098 },
-  { id: 'zone-C', name: 'VIP Lounge', capacity: 2000, lat: -33.8690, lng: 151.2090 },
-  { id: 'zone-D', name: 'Tunnel Walkway', capacity: 5000, lat: -33.8692, lng: 151.2095 },
-  { id: 'zone-E', name: 'East Stand', capacity: 12000, lat: -33.8686, lng: 151.2100 },
-  { id: 'zone-F', name: 'West Stand', capacity: 12000, lat: -33.8686, lng: 151.2086 },
-  { id: 'zone-G', name: 'North End', capacity: 7000, lat: -33.8680, lng: 151.2093 },
-  { id: 'zone-H', name: 'South End', capacity: 7000, lat: -33.8696, lng: 151.2093 },
+  // Coordinates represent MCG (Melbourne Cricket Ground) zone layout
+  { id: 'zone-A', name: 'Main Entrance',      capacity: 8000,  lat: -37.8208, lng: 144.9834 },
+  { id: 'zone-B', name: 'Level 1 Concourse',  capacity: 10000, lat: -37.8199, lng: 144.9834 },
+  { id: 'zone-C', name: 'VIP Lounge',         capacity: 2000,  lat: -37.8199, lng: 144.9824 },
+  { id: 'zone-D', name: 'Tunnel Walkway',     capacity: 5000,  lat: -37.8203, lng: 144.9840 },
+  { id: 'zone-E', name: 'East Stand',         capacity: 12000, lat: -37.8199, lng: 144.9845 },
+  { id: 'zone-F', name: 'West Stand',         capacity: 12000, lat: -37.8199, lng: 144.9823 },
+  { id: 'zone-G', name: 'North End',          capacity: 7000,  lat: -37.8191, lng: 144.9834 },
+  { id: 'zone-H', name: 'South End',          capacity: 7000,  lat: -37.8207, lng: 144.9834 },
 ];
 
 // ── Seed queues ──────────────────────────────────────────────

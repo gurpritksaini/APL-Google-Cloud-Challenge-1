@@ -5,6 +5,7 @@ const isDev = process.env.NODE_ENV === 'development';
 const nextConfig: NextConfig = {
   output: 'export',
   reactStrictMode: true,
+  devIndicators: false,
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
