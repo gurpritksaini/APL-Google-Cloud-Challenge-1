@@ -4,8 +4,11 @@ import { bq, queuesCol, DATASET } from '../lib/firebase.js';
 import { posEventSchema } from '../lib/schemas.js';
 
 // T014: process-pos-event
-// Trigger: Pub/Sub topic venue-pos-events
-// Updates queue wait times in Firestore and logs to BigQuery.
+// Trigger: Pub/Sub topic venue-pos-events (published by POS terminals every 30 s)
+// Each message is a full queue snapshot (not a delta), so we use set({merge:true})
+// instead of update() — the document is created on first publish and overwritten
+// on subsequent ones. Wait time and queue length are logged to BigQuery for
+// trend analysis and half-time rush pattern modelling.
 export const processPosEvent = functions.pubsub.onMessagePublished(
   {
     topic: 'venue-pos-events',

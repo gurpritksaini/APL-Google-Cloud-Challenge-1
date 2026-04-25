@@ -21,8 +21,11 @@ const pubsub = new PubSub({ projectId: PROJECT_ID });
 const ZONES = Array.from({ length: ZONE_COUNT }, (_, i) => `zone-${String.fromCharCode(65 + i)}`);
 const GATES = Array.from({ length: GATE_COUNT }, (_, i) => `gate-${String(i + 1).padStart(2, '0')}`);
 
+// Models a realistic stadium arrival curve:
+//   0–60 min  : linear ramp from 20 to 320 arrivals/min (crowd builds before kick-off)
+//   60–90 min : linear decay from 320 to 120 (peak entry wave subsides)
+//   90+ min   : slow taper to 5 min (late arrivals only)
 function getArrivalRate(elapsedMin: number): number {
-  // Arrival curve: ramps up to peak at 60 min, then declines
   if (elapsedMin < 60) {
     return Math.floor((elapsedMin / 60) * 300 + 20); // 20 → 320 per minute
   } else if (elapsedMin < 90) {
@@ -71,7 +74,8 @@ async function run() {
     }
 
     const rate = getArrivalRate(elapsedMin);
-    const exitRate = Math.floor(rate * 0.05); // 5% are exits
+    // 5% exits approximates mid-game departures (toilets, injuries, leaving early).
+    const exitRate = Math.floor(rate * 0.05);
 
     const promises: Promise<void>[] = [];
     for (let i = 0; i < rate; i++) {

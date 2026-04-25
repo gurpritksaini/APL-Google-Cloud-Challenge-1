@@ -18,8 +18,9 @@ const db = admin.firestore();
 const now = admin.firestore.Timestamp.now();
 
 // ── Seed zones ───────────────────────────────────────────────
+// Coordinates represent Melbourne Cricket Ground (MCG) stand positions.
+// lat/lng are used by the map page when Firestore zone docs lack explicit coordinates.
 const ZONES = [
-  // Coordinates represent MCG (Melbourne Cricket Ground) zone layout
   { id: 'zone-A', name: 'Main Entrance',      capacity: 8000,  lat: -37.8208, lng: 144.9834 },
   { id: 'zone-B', name: 'Level 1 Concourse',  capacity: 10000, lat: -37.8199, lng: 144.9834 },
   { id: 'zone-C', name: 'VIP Lounge',         capacity: 2000,  lat: -37.8199, lng: 144.9824 },
@@ -105,7 +106,7 @@ async function seed() {
   });
   console.info('✅ Seeded current session');
 
-  // Current event
+  // The events collection is referenced by the session doc and analytics queries.
   await db.collection('events').doc('demo-event-2024').set({
     name: 'APL Grand Final — Demo Day',
     venue: 'Smart Venue Stadium',

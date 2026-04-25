@@ -32,23 +32,26 @@ ZONES.forEach((z) => { currentOccupancy[z.id] = 0; });
 // Track active alerts to simulate redistribution
 const zoneAlerted = new Set<string>();
 
+// Computes target occupancy for a zone at a given simulation time.
+// Crowd redistribution is approximated: when a zone is marked critical (alerted),
+// its occupancy halves as attendees leave, while adjacent zone-B absorbs overflow
+// from zone-A. This exercises the full alert→resolve cycle in evaluateZoneThresholds.
 function getTargetOccupancyPct(zoneId: string, elapsedMin: number): number {
-  // Global fill level follows arrival curve
+  // Global fill level follows arrival curve: ramp to 85% in first hour, then hold
   const globalFill = elapsedMin < 60
     ? (elapsedMin / 60) * 0.85           // Ramp up to 85%
     : elapsedMin < 90
       ? 0.85 - ((elapsedMin - 60) / 30) * 0.1  // 85% → 75%
       : 0.75;                             // Steady state
 
-  // Simulate redistribution: if zone alerted, attendees move to adjacent zones
   let zoneFactor = 1.0;
   if (zoneAlerted.has(zoneId)) {
-    zoneFactor = 0.5; // Crowd evacuates
+    zoneFactor = 0.5; // Crowd evacuates from critical zone
   } else if (zoneId === 'zone-B' && zoneAlerted.has('zone-A')) {
-    zoneFactor = 1.3; // Overflow from zone A
+    zoneFactor = 1.3; // zone-B absorbs overflow from zone-A
   }
 
-  // Add realistic noise
+  // ±8% noise band represents natural crowd movement and sensor variance.
   const noise = (Math.random() - 0.5) * 0.08;
   return Math.min(100, Math.max(0, globalFill * zoneFactor * 100 + noise * 100));
 }
@@ -56,7 +59,8 @@ function getTargetOccupancyPct(zoneId: string, elapsedMin: number): number {
 async function publishSensorReading(zone: typeof ZONES[0], elapsedMin: number) {
   const targetPct = getTargetOccupancyPct(zone.id, elapsedMin);
 
-  // Smooth movement: max 3% change per tick
+  // Cap change at 3% per 30-second tick — matches real sensor inertia and
+  // prevents jarring jumps that would make the UI counters look unrealistic.
   const current = currentOccupancy[zone.id] ?? 0;
   const delta = Math.min(3, Math.abs(targetPct - current)) * Math.sign(targetPct - current);
   const newPct = Math.min(100, Math.max(0, current + delta));

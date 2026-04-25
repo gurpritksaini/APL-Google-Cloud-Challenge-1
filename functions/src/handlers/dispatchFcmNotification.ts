@@ -5,7 +5,10 @@ import { fcmTitle, fcmAction } from '../lib/logic.js';
 
 // T017: dispatch-fcm-notification
 // Trigger: Firestore onDocumentCreated /alerts/{alertId}
-// Sends FCM push notification to the zone's topic subscribers.
+// Fires the moment evaluateZoneThresholds writes a new alert document.
+// Sends platform-specific FCM messages (Android high priority, APNs sound,
+// webpush requireInteraction for critical) to the zone-{id} topic so only
+// attendees in the affected zone are notified.
 export const dispatchFcmNotification = functions.firestore.onDocumentCreated(
   {
     document: 'alerts/{alertId}',

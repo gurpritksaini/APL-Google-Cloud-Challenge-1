@@ -1,3 +1,8 @@
+// Zod schemas for validating Pub/Sub message payloads before any Firestore or
+// BigQuery writes. If a schema parse fails the Cloud Function acks the message
+// without retrying — malformed messages are logged and discarded rather than
+// causing an infinite retry loop.
+
 import { z } from 'zod';
 
 // ── Pub/Sub event payload schemas ────────────────────────────

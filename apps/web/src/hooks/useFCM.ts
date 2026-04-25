@@ -1,3 +1,7 @@
+// React hook that encapsulates the full Firebase Cloud Messaging lifecycle:
+// permission request → token retrieval → topic subscription → foreground message handling.
+// Components that need push notifications should use this hook rather than
+// calling FCM APIs directly.
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -58,7 +62,8 @@ export function useFCM(): UseFCMResult {
     }
   }, []);
 
-  // Subscribe device to a zone-specific FCM topic via our API
+  // Topic subscription must go through our API route because the browser FCM SDK
+  // cannot subscribe to topics — that requires the Firebase Admin SDK (server-side).
   const subscribeToZone = useCallback(
     async (zoneId: string): Promise<void> => {
       if (!token) return;

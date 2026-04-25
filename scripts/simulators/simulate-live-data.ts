@@ -74,6 +74,7 @@ const queueState: Record<string, { wait: number; length: number }> = {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
 const jitter = (v: number, range: number) => v + (Math.random() - 0.5) * 2 * range;
+// 10% chance of a sudden surge to trigger the critical alert pipeline end-to-end.
 const spike  = (v: number, max: number)  =>
   Math.random() < 0.1 ? clamp(v * (1.3 + Math.random() * 0.4), 0, max) : v;
 

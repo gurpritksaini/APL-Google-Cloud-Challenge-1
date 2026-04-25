@@ -1,3 +1,11 @@
+// Venue Map page — renders a dark-styled Google Map centred on the MCG with:
+//  • Zone circle markers whose size scales with occupancy percentage
+//  • A canvas particle overlay (OverlayView) that animates dots representing
+//    live attendee density — particle count per zone tracks occupancyPct
+//  • A legend and tap-to-inspect zone info popup
+//
+// The Google Maps JS SDK is loaded dynamically (not via next/script) because
+// we need the `libraries=visualization` param and must defer until client-side.
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -33,7 +41,8 @@ const STATUS_COLORS = {
   critical: '#EA4335',
 };
 
-// Fallback coords (MCG layout) when Firestore zone docs lack lat/lng
+// Hardcoded MCG stand coordinates used when Firestore zone documents don't yet
+// have lat/lng fields (e.g. freshly seeded demo data or during initial deploy).
 const ZONE_FALLBACK: Record<string, { lat: number; lng: number }> = {
   'zone-A': { lat: -37.8208, lng: 144.9834 },
   'zone-B': { lat: -37.8199, lng: 144.9834 },
@@ -47,6 +56,7 @@ const ZONE_FALLBACK: Record<string, { lat: number; lng: number }> = {
 
 // ── Particle system ───────────────────────────────────────────────────────────
 
+// 28 particles at 100% occupancy keeps the canvas cheap (~224 draw calls total).
 const MAX_PARTICLES_PER_ZONE = 28;
 const WANDER_RADIUS = 0.00035; // ~40 m in degrees at MCG latitude
 
@@ -338,7 +348,7 @@ export default function MapPage() {
       }
     });
 
-    // Prune fully-faded particles
+    // Prune particles that have fully faded out to keep the array lean.
     particlesRef.current = particlesRef.current.filter(
       (p) => !(p.targetAlpha === 0 && p.alpha < 0.02),
     );

@@ -6,8 +6,11 @@ import { entryEventSchema } from '../lib/schemas.js';
 import { zoneStatus } from '../lib/logic.js';
 
 // T013: process-entry-event
-// Trigger: Pub/Sub topic venue-entry-events
-// Updates Firestore zone occupancy and writes to BigQuery.
+// Trigger: Pub/Sub topic venue-entry-events (published by gate scanners)
+// Updates zone occupancy in Firestore via a transaction to avoid race conditions
+// from concurrent gate scans, then writes an immutable record to BigQuery for
+// historical analysis. Malformed payloads are acked without retry to avoid
+// poisoning the subscription.
 export const processEntryEvent = functions.pubsub.onMessagePublished(
   {
     topic: 'venue-entry-events',
@@ -21,7 +24,7 @@ export const processEntryEvent = functions.pubsub.onMessagePublished(
 
     if (!parsed.success) {
       functions.logger.error('Invalid entry event payload', { errors: parsed.error.flatten() });
-      return; // Ack the message — do not retry malformed data
+      return; // Returning without throwing acks the Pub/Sub message — prevents infinite retries.
     }
 
     const payload = parsed.data;

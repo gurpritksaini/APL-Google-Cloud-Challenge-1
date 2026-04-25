@@ -1,3 +1,7 @@
+// Real-time Firestore hooks that handle anonymous auth, snapshot subscriptions,
+// and cleanup automatically. Use these instead of calling onSnapshot directly —
+// they guard against Firestore permission errors that occur when the component
+// mounts before authentication completes.
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -33,7 +37,9 @@ export function useCollection<T extends DocumentData>(
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  // Stringify constraints to use as dep — constraints are recreated each render
+  // QueryConstraint objects are recreated on every render, so they can't be used
+  // as useEffect deps directly. Stringifying their type names gives a stable key
+  // that only changes when the actual query shape changes.
   const constraintKey = JSON.stringify(constraints.map((c) => c.type));
 
   useEffect(() => {

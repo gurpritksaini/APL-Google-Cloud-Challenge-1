@@ -1,3 +1,6 @@
+// Alerts page — lists all unresolved crowd alerts and recently resolved ones.
+// Active alerts are fetched with real-time Firestore listeners so the list
+// updates the moment evaluateZoneThresholds creates or resolves an alert.
 'use client';
 
 import { useCollection } from '@/hooks/useFirestore';

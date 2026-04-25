@@ -1,3 +1,7 @@
+// Firebase client-side singletons for the web app.
+// All three services (Firestore, Auth, Messaging) are lazily initialised so
+// the module is safe to import in both SSR and browser contexts.
+
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getMessaging, type Messaging } from 'firebase/messaging';
@@ -16,6 +20,7 @@ let app: FirebaseApp;
 let db: Firestore;
 let auth: Auth;
 
+// Guard against duplicate initialisation during Next.js Hot Module Replacement.
 function getFirebaseApp(): FirebaseApp {
   if (!app) {
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
@@ -37,6 +42,8 @@ export function getFirebaseAuth(): Auth {
   return auth;
 }
 
+// Firestore security rules require an authenticated user — call this before any
+// Firestore read/write. Anonymous auth is sufficient and requires no user action.
 export async function ensureAnonymousAuth(): Promise<string | null> {
   const authInstance = getFirebaseAuth();
   if (authInstance.currentUser) return authInstance.currentUser.uid;
@@ -49,6 +56,7 @@ export async function ensureAnonymousAuth(): Promise<string | null> {
   }
 }
 
+// FCM Messaging is browser-only — the SDK throws if loaded during SSR.
 export function getFirebaseMessaging(): Messaging | null {
   if (typeof window === 'undefined') return null;
   try {

@@ -1,3 +1,7 @@
+// Home / dashboard page — shows live event KPIs, active alerts, and the
+// notification opt-in prompt. Receives deep-link context (?gate=&zone=) from
+// QR codes printed on gate entry tickets so attendees are auto-subscribed to
+// their zone's FCM topic on first load.
 'use client';
 
 import { Suspense, useEffect, useRef, useState } from 'react';
@@ -31,8 +35,9 @@ interface AlertDoc {
 
 // ── Hooks ─────────────────────────────────────────────────────────────────────
 
-// Smoothly counts from current displayed value to new target (ease-out cubic).
-// Skips animation on first mount so the initial load feels instant.
+// Animates a numeric value from its previous reading to the new target using
+// an ease-out cubic curve (t³ deceleration). Skips the animation on the very
+// first render so stale→live transitions feel like updates, not cold loads.
 function useCountUp(target: number, duration = 700) {
   const initialized = useRef(false);
   const fromRef     = useRef(target);
@@ -52,7 +57,7 @@ function useCountUp(target: number, duration = 700) {
 
     const tick = (now: number) => {
       const t      = Math.min((now - start) / duration, 1);
-      const eased  = 1 - Math.pow(1 - t, 3);
+      const eased  = 1 - Math.pow(1 - t, 3); // ease-out cubic: fast start, gentle finish
       setDisplayed(Math.round(from + (target - from) * eased));
       if (t < 1) {
         frameRef.current = requestAnimationFrame(tick);
@@ -67,7 +72,8 @@ function useCountUp(target: number, duration = 700) {
   return displayed;
 }
 
-// Returns the signed change and whether to show it (visible for 2.5 s after each update).
+// Tracks the signed delta between the previous and current value. The badge is
+// shown for 2.5 s after each update so it doesn't linger and become noise.
 function useDelta(value: number) {
   const prevRef  = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -88,7 +94,9 @@ function useDelta(value: number) {
   return { delta, showing };
 }
 
-// Live "updated X seconds ago" label that ticks every second.
+// Produces a human-readable "X seconds ago" label that re-evaluates every
+// second. Uses the Firestore server timestamp (seconds since epoch) to avoid
+// client clock drift affecting freshness perception.
 function useRelativeTime(seconds?: number) {
   const [label, setLabel] = useState('');
   useEffect(() => {
@@ -127,7 +135,8 @@ function StatCard({
   const animated  = useCountUp(safeValue);
   const { delta, showing } = useDelta(safeValue);
 
-  // Brief ring-flash when value changes
+  // A brief ring-flash (900 ms) signals to the user that a live value changed,
+  // providing affordance that the data is genuinely real-time.
   const flashRef   = useRef(false);
   const [flash, setFlash] = useState(false);
   useEffect(() => {
@@ -204,6 +213,9 @@ function HomePage() {
   const { requestPermission, permission, subscribeToZone } = useFCM();
   const updatedLabel = useRelativeTime(session?.lastUpdated?.seconds);
 
+  // Auto-subscribe to zone notifications when a ?zone= param is present.
+  // This param is embedded in the QR code printed on attendee tickets so
+  // relevant push alerts are delivered without extra user interaction.
   useEffect(() => {
     if (zoneId) void subscribeToZone(zoneId);
   }, [zoneId, subscribeToZone]);

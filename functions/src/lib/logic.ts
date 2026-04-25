@@ -1,5 +1,10 @@
+// Pure business logic with no Firebase dependencies — safe to unit-test in
+// isolation and importable from both Cloud Functions and scripts.
+
 import type { ZoneStatus } from './schemas.js';
 
+// Thresholds must stay in sync with WARN_THRESHOLD / CRITICAL_THRESHOLD in
+// evaluateZoneThresholds.ts — change them there and here together.
 export function zoneStatus(occupancyPct: number): ZoneStatus {
   if (occupancyPct >= 85) return 'critical';
   if (occupancyPct >= 70) return 'warning';

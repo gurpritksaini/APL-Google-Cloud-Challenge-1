@@ -9,7 +9,15 @@ const CRITICAL_THRESHOLD = 85;
 
 // T016: evaluate-zone-thresholds
 // Trigger: Cloud Scheduler every 60 seconds
-// Reads all zones, creates/resolves alerts based on occupancy thresholds.
+// Scans every zone document in Firestore and idempotently creates or resolves
+// alerts based on occupancy thresholds. Uses a Firestore batch write for
+// atomicity. All alert state changes are mirrored to BigQuery for duration
+// and frequency analytics.
+//
+// Alert lifecycle:
+//   zone occupancyPct ≥ 85 → create occupancy_critical alert (if none active)
+//   zone occupancyPct ≥ 70 → create occupancy_warn alert (if none active)
+//   zone occupancyPct < 70 → resolve any active alerts for that zone
 export const evaluateZoneThresholds = functions.scheduler.onSchedule(
   {
     schedule: 'every 1 minutes',
@@ -23,6 +31,7 @@ export const evaluateZoneThresholds = functions.scheduler.onSchedule(
       alertsCol().where('resolved', '==', false).get(),
     ]);
 
+    // Index active alerts by "zone:type" composite key for O(1) lookup per zone.
     const activeAlertsByZone = new Map<string, FirebaseFirestore.DocumentSnapshot>();
     activeAlertsSnap.docs.forEach((doc) => {
       const data = doc.data() as AlertDoc;

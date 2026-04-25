@@ -1,3 +1,6 @@
+// Fixed bottom navigation bar shared across all pages. Uses the current pathname
+// to highlight the active tab. The nav items intentionally mirror the four main
+// use cases: overview, queue times, venue map, and alerts.
 'use client';
 
 import Link from 'next/link';

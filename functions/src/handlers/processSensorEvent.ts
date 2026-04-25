@@ -5,8 +5,11 @@ import { sensorEventSchema } from '../lib/schemas.js';
 import { zoneStatus } from '../lib/logic.js';
 
 // T015: process-sensor-event
-// Trigger: Pub/Sub topic venue-sensor-events
-// Updates zone density and status from IoT sensor readings.
+// Trigger: Pub/Sub topic venue-sensor-events (published by IoT sensors every 30 s)
+// Each reading is authoritative for occupancy — we overwrite (merge) rather than
+// increment because the sensor reports absolute headcount, not a delta. The derived
+// status field (normal/warning/critical) is recomputed on every update so it stays
+// consistent even if entry events are delayed or out of order.
 export const processSensorEvent = functions.pubsub.onMessagePublished(
   {
     topic: 'venue-sensor-events',

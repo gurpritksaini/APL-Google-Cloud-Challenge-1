@@ -24,8 +24,11 @@ const QUEUES = [
   { id: 'q-merch-main', zone: 'zone-B', location: 'Main Merch Store', type: 'merch' },
 ];
 
+// Simulates queue state based on game phase. Restrooms spike much harder than
+// food/merch during half-time — modelled separately to trigger evaluateZoneThresholds
+// alerts and demonstrate the full alert→push notification pipeline.
 function getQueueState(queueId: string, elapsedMin: number) {
-  // Half-time rush at 45 min and 90 min marks
+  // Half-time window: ~43–60 min (first break) and 88–100 min (second break)
   const isHalftime = (elapsedMin >= 43 && elapsedMin <= 60) || (elapsedMin >= 88 && elapsedMin <= 100);
   const isGameTime = elapsedMin < 15 || (elapsedMin > 45 && elapsedMin < 88) || elapsedMin > 105;
 

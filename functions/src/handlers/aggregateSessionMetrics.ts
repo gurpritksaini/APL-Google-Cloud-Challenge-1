@@ -4,7 +4,11 @@ import { bq, sessionsCol, DATASET, PROJECT_ID } from '../lib/firebase.js';
 
 // T018: aggregate-session-metrics
 // Trigger: Cloud Scheduler every 15 minutes
-// Queries BigQuery for rolling KPIs and updates the /sessions/current document in Firestore.
+// Runs a cross-table BigQuery query over the last 24 hours to produce rolling
+// KPIs (peak occupancy, avg queue wait, total entries, alert counts) and writes
+// them back to /sessions/current in Firestore — the document the home page
+// dashboard listens to in real-time. Also snapshots the metrics to BigQuery's
+// session_metrics table for historical reporting.
 export const aggregateSessionMetrics = functions.scheduler.onSchedule(
   {
     schedule: 'every 15 minutes',
@@ -22,6 +26,9 @@ export const aggregateSessionMetrics = functions.scheduler.onSchedule(
     const session = sessionSnap.data()!;
     const eventId: string = session['eventId'] ?? 'unknown';
 
+    // The 1-DAY window covers a full event day regardless of start time.
+    // For multi-day events this query would need scoping to the current session's
+    // startTime — acceptable for the current single-day demo scope.
     const query = `
       WITH zone_metrics AS (
         SELECT

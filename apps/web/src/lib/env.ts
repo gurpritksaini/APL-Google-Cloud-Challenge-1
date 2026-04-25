@@ -1,3 +1,7 @@
+// Validates all required NEXT_PUBLIC_* environment variables at module load time.
+// Any missing or malformed variable throws immediately — errors surface at startup
+// instead of silently breaking at runtime inside a component.
+
 import { z } from 'zod';
 
 const clientSchema = z.object({
@@ -10,6 +14,7 @@ const clientSchema = z.object({
   NEXT_PUBLIC_FIREBASE_APP_ID: z.string().min(1),
   NEXT_PUBLIC_FCM_VAPID_KEY: z.string().min(1),
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().min(1),
+  // Feature flags — Next.js env vars are always strings, so we coerce "true"/"false".
   NEXT_PUBLIC_ENABLE_OFFLINE_MODE: z
     .string()
     .transform((v) => v === 'true')

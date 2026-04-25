@@ -1,3 +1,7 @@
+// Root layout shared across all pages. Wraps the app in the toast notification
+// context, mounts the FCM foreground message handler (NotificationHandler), and
+// renders the persistent bottom navigation bar.
+
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
@@ -42,6 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="flex min-h-screen flex-col bg-[#05091a] text-white">
         <ToastProvider>
           <NotificationHandler />
+          {/* pb-20 leaves room for the fixed 80px bottom nav bar */}
           <main className="flex-1 pb-20">{children}</main>
           <BottomNav />
         </ToastProvider>

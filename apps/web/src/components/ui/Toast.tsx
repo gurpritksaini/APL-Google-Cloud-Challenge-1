@@ -1,3 +1,6 @@
+// Global toast notification system. ToastProvider should wrap the entire app
+// (it's mounted in the root layout). Any component can call useToast().showToast
+// to surface an in-app notification. Toasts auto-dismiss after 5 seconds.
 'use client';
 
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';

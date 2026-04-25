@@ -1,3 +1,6 @@
+// Queue Times page — shows wait times for all concession stands, restrooms, and
+// merch stalls with real-time Firestore updates. Supports client-side filtering
+// by queue type and toggling between sort-by-wait and sort-by-zone.
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -51,6 +54,9 @@ function useCountUp(target: number, duration = 600) {
   return displayed;
 }
 
+// Shows a trending direction arrow for 3 s after a queue length changes.
+// The 3 s window is long enough to catch a glance but short enough not to
+// mislead once the value stabilises.
 function useTrend(value: number): 'up' | 'down' | null {
   const prevRef = useRef<number | null>(null);
   const [trend, setTrend]       = useState<'up' | 'down' | null>(null);
@@ -71,7 +77,8 @@ function useTrend(value: number): 'up' | 'down' | null {
   return showing ? trend : null;
 }
 
-// Live "updated X s ago" label
+// Produces a "just now / Xs ago / Xm ago" staleness label for each queue row.
+// Fires every second so the label stays accurate without a manual refresh.
 function useAgeLabel(seconds?: number) {
   const [label, setLabel] = useState('');
   useEffect(() => {
@@ -93,6 +100,7 @@ function WaitBadge({ minutes }: { minutes: number }) {
   const animated = useCountUp(Math.round(minutes));
   const trend    = useTrend(Math.round(minutes));
 
+  // Thresholds: < 5 min = green (short), ≤ 15 min = amber (moderate), > 15 min = red (long)
   const cls =
     minutes < 5   ? 'status-normal'   :
     minutes <= 15 ? 'status-warning'  : 'status-critical';
